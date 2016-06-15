@@ -16,8 +16,7 @@ public class UserData {
     /**
      * Get a value by name
      *
-     * @param name
-     *            the name of the value to get
+     * @param name the name of the value to get
      * @return the value, or null if absent or of a different type
      */
     public <T> T getRaw(String name) {
@@ -34,8 +33,7 @@ public class UserData {
     /**
      * Get a value by name
      *
-     * @param name
-     *            the name of the value
+     * @param name the name of the value
      * @return the Optional value
      */
     public <T> Optional<T> get(String name) {
@@ -46,10 +44,8 @@ public class UserData {
     /**
      * Get a value by name, or add one from the provided supplier if absent
      *
-     * @param name
-     *            the name of the value to get
-     * @param supplier
-     *            the supplier that provides a new value if it is absent
+     * @param name the name of the value to get
+     * @param supplier the supplier that provides a new value if it is absent
      * @return the value
      */
     public <T> T get(String name, Supplier<T> supplier) {
@@ -63,10 +59,8 @@ public class UserData {
     /**
      * Get a value by name, or return a default value if absent
      *
-     * @param name
-     *            the name of the value to look up
-     * @param defaultValue
-     *            the default value
+     * @param name the name of the value to look up
+     * @param defaultValue the default value
      * @return the value
      */
     public <T> T getOrElse(String name, T defaultValue) {
@@ -77,10 +71,8 @@ public class UserData {
     /**
      * Transforms the current value of the option
      *
-     * @param name
-     *            the name of the value to transform
-     * @param transformer
-     *            the function that transforms the current value to another
+     * @param name the name of the value to transform
+     * @param transformer the function that transforms the current value to another
      * @return the resulting value of the transformation - may be null
      */
     public <T> T transformRaw(String name, Function<T, T> transformer) {
@@ -95,13 +87,9 @@ public class UserData {
      * Transforms the current value of the option, or the supplied value if
      * absent
      *
-     * @param name
-     *            the name of the value to transform
-     * @param transformer
-     *            the function that transforms the current value to another
-     * @param supplier
-     *            a supplier that provides a default value if it isn't currently
-     *            present
+     * @param name the name of the value to transform
+     * @param transformer the function that transforms the current value to another
+     * @param supplier a supplier that provides a default value if it isn't currently present
      * @return the transformed value
      */
     public <T> T transform(String name, Function<T, T> transformer, Supplier<T> supplier) {
@@ -113,8 +101,7 @@ public class UserData {
     /**
      * Remove a value by name
      *
-     * @param name
-     *            the name of the value to remove
+     * @param name the name of the value to remove
      * @return true if the value was present and has been removed, else false
      */
     public boolean remove(String name) {
@@ -124,10 +111,8 @@ public class UserData {
     /**
      * Set the value of a named value
      *
-     * @param name
-     *            the name of the value to set
-     * @param value
-     *            the value
+     * @param name the name of the value to set
+     * @param value the value
      */
     public void set(String name, Object value) {
         data.put(name, value);

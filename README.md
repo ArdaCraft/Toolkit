@@ -1,2 +1,2 @@
-# me.dags.toolkit.Toolkit
+# Toolkit
 Building tools and tweaks for SpongeAPI

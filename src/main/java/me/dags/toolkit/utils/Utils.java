@@ -28,4 +28,9 @@ public class Utils {
         Optional<BlockRayHit<World>> hit = BlockRay.from(player).filter(BlockRay.continueAfterFilter(BlockRay.onlyAirFilter(), 1)).end();
         return hit.isPresent() ? hit.get().getLocation().createSnapshot() : org.spongepowered.api.block.BlockSnapshot.NONE;
     }
+
+    public static BlockSnapshot targetBlock(Player player, int limit) {
+        Optional<BlockRayHit<World>> hit = BlockRay.from(player).blockLimit(limit).filter(BlockRay.continueAfterFilter(BlockRay.onlyAirFilter(), 1)).end();
+        return hit.isPresent() ? hit.get().getLocation().createSnapshot() : org.spongepowered.api.block.BlockSnapshot.NONE;
+    }
 }

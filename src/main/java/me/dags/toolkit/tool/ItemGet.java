@@ -18,7 +18,7 @@ public class ItemGet {
 
     @Command(aliases = "get", perm = "toolkit.get.block")
     public void getBlock(@Caller Player player) {
-        BlockSnapshot target = Utils.targetBlock(player);
+        BlockSnapshot target = Utils.targetBlock(player, 50);
         if (target.getState().getType().getItem().isPresent()) {
             ItemStack itemStack = ItemStack.builder().fromBlockSnapshot(target).quantity(1).build();
             player.getInventory().offer(itemStack);

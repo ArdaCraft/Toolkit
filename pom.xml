@@ -15,10 +15,11 @@
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
-        <finalName>${artifactId}-${version}-build${build.number}</finalName>
+        <finalName>${project.artifactId}-${project.version}-build${build.number}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
+                <version>1.0.0</version>
                 <artifactId>templating-maven-plugin</artifactId>
                 <executions>
                     <execution>
@@ -35,6 +36,7 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <version>3.5.1</version>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>1.8</source>

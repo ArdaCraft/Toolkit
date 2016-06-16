@@ -2,7 +2,7 @@ package me.dags.toolkit.tool;
 
 import me.dags.commandbus.annotation.Caller;
 import me.dags.commandbus.annotation.Command;
-import me.dags.commandbus.annotation.One;
+import me.dags.commandbus.annotation.Join;
 import me.dags.toolkit.Toolkit;
 import me.dags.toolkit.utils.UserData;
 import me.dags.toolkit.utils.Utils;
@@ -17,6 +17,7 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.pagination.PaginationList;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.biome.BiomeType;
 
@@ -47,7 +48,7 @@ public class BiomeWand {
                 .map(BiomeType::getName)
                 .sorted()
                 .distinct()
-                .map(Text::of)
+                .map(s -> Text.builder(s).onClick(TextActions.runCommand("/biome " + s)).build())
                 .collect(Collectors.toList());
 
         PaginationList.builder()
@@ -59,14 +60,16 @@ public class BiomeWand {
 
     @Command(aliases = "biome", perm = "toolkit.wand.biome")
     public void biomeType(@Caller Player player) {
-        BlockSnapshot snapshot = Utils.targetBlock(player);
-        snapshot.getLocation().ifPresent(l -> biomeType(player, l.getBiome()));
+        BlockSnapshot snapshot = Utils.targetBlock(player, 50);
+        snapshot.getLocation().ifPresent(l -> biomeType(player, l.getBiome().getName()));
     }
 
     @Command(aliases = "biome", perm = "toolkit.wand.biome")
-    public void biomeType(@Caller Player player, @One("biome") BiomeType biome) {
-        Toolkit.getData(player).set("option.wand.biome.type", biome);
-        Utils.notify(player, "Set biome type to: " + biome.getName());
+    public void biomeType(@Caller Player player, @Join("biome") String biome) {
+        Sponge.getRegistry().getType(BiomeType.class, biome).ifPresent(biomeType -> {
+            Toolkit.getData(player).set("option.wand.biome.type", biome);
+            Utils.notify(player, "Set biome type to: " + biomeType.getName());
+        });
     }
 
     @Listener
@@ -77,8 +80,7 @@ public class BiomeWand {
             Optional<BiomeType> biome = data.get("option.wand.biome.type");
             if (biome.isPresent()) {
                 event.setCancelled(true);
-                BlockSnapshot target = Utils.targetBlock(player);
-                // TODO - refresh chunks?
+                BlockSnapshot target = Utils.targetBlock(player, 50);
                 target.getLocation().ifPresent(l -> l.getExtent().setBiome(l.getBiomePosition(), biome.get()));
             }
         }

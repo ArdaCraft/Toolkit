@@ -4,6 +4,7 @@ import me.dags.commandbus.CommandBus;
 import me.dags.toolkit.tool.BiomeWand;
 import me.dags.toolkit.tool.ItemGet;
 import me.dags.toolkit.tool.NoPhysics;
+import me.dags.toolkit.tool.WeatherLock;
 import me.dags.toolkit.utils.UserData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ public class Toolkit {
         modules.put("get", new ItemGet());
         modules.put("wand.biome", new BiomeWand());
         modules.put("nophysics", new NoPhysics());
+        modules.put("weatherlock", new WeatherLock());
 
         // TODO - check against config to see if tool is enabled before registering it
         CommandBus commandBus = CommandBus.newInstance(logger);

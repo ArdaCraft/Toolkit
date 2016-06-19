@@ -67,7 +67,7 @@ public class BiomeWand {
     @Command(aliases = "biome", perm = "toolkit.wand.biome")
     public void biomeType(@Caller Player player, @Join("biome") String biome) {
         Sponge.getRegistry().getType(BiomeType.class, biome).ifPresent(biomeType -> {
-            Toolkit.getData(player).set("option.wand.biome.type", biome);
+            Toolkit.getData(player).set("option.wand.biome.type", biomeType);
             Utils.notify(player, "Set biome type to: " + biomeType.getName());
         });
     }

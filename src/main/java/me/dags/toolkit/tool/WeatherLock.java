@@ -23,7 +23,7 @@ public class WeatherLock {
     @Listener
     public void onWeatherChange(ChangeWorldWeatherEvent event) {
         if (lock) {
-            event.setWeather(event.getOriginalWeather());
+            event.setCancelled(true);
         }
     }
 }

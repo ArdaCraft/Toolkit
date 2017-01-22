@@ -2,6 +2,7 @@ package me.dags.toolkit.tool;
 
 import me.dags.commandbus.annotation.Caller;
 import me.dags.commandbus.annotation.Command;
+import me.dags.commandbus.annotation.Permission;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.world.ChangeWorldWeatherEvent;
@@ -14,7 +15,7 @@ public class WeatherLock {
 
     private boolean lock = true;
 
-    @Command(aliases = {"weatherlock", "wl"}, perm = "toolkit.weatherlock")
+    @Command(aliases = {"weatherlock", "wl"}, perm = @Permission("toolkit.weatherlock"))
     public void lock(@Caller CommandSource source) {
         lock = !lock;
         source.sendMessage(Text.of("Set weather lock: " + (lock ? "on" : "off")));

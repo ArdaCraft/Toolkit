@@ -2,6 +2,7 @@ package me.dags.toolkit.tool;
 
 import me.dags.commandbus.annotation.Caller;
 import me.dags.commandbus.annotation.Command;
+import me.dags.commandbus.annotation.Permission;
 import me.dags.toolkit.Toolkit;
 import me.dags.toolkit.utils.Utils;
 import org.spongepowered.api.entity.living.player.Player;
@@ -15,7 +16,7 @@ import org.spongepowered.api.event.filter.cause.Named;
  */
 public class NoPhysics {
 
-    @Command(aliases = {"nophysics", "np"}, perm = "toolkit.nophysics")
+    @Command(aliases = {"nophysics", "np"}, perm = @Permission("toolkit.nophysics"))
     public void togglePhysics(@Caller Player player) {
         boolean value = Toolkit.getData(player).transform("option.nophysics", b -> !b, () -> false);
         Utils.notify(player, "Set no-physics to: ", value);

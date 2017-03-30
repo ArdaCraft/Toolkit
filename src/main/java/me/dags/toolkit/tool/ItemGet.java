@@ -18,7 +18,8 @@ import org.spongepowered.api.item.inventory.ItemStack;
  */
 public class ItemGet {
 
-    @Command(aliases = "get", perm = @Permission("toolkit.get.block"))
+    @Permission("toolkit.get.block")
+    @Command(alias = "get")
     public void getBlock(@Caller Player player) {
         BlockSnapshot target = Utils.targetBlock(player, 50);
         if (target.getState().getType().getItem().isPresent()) {
@@ -28,7 +29,8 @@ public class ItemGet {
         }
     }
 
-    @Command(aliases = "head", parent = "get", perm = @Permission("toolkit.get.head"))
+    @Permission("toolkit.get.head")
+    @Command(alias = "head", parent = "get")
     public void getHead(@Caller Player player, @One("player") User user) {
         ItemStack stack = ItemStack.of(ItemTypes.SKULL, 1);
         stack.offer(Keys.SKULL_TYPE, SkullTypes.PLAYER);

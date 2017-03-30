@@ -25,7 +25,7 @@ public class Toolkit {
 
     public static final String ID = "toolkit";
     public static final String NAME = "Toolkit";
-    public static final String VERSION = "1.0-SNAPSHOT";
+    public static final String VERSION = "1.1-SNAPSHOT";
 
     private static final Logger logger = LoggerFactory.getLogger("Toolkit");
     private static final Map<UUID, UserData> userData = new HashMap<>();

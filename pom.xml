@@ -63,13 +63,13 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>6.0.0-SNAPSHOT</version>
+            <version>5.1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.dags-</groupId>
             <artifactId>CommandBus</artifactId>
-            <version>-SNAPSHOT</version>
+            <version>1.6.0-RC3</version>
         </dependency>
     </dependencies>
 </project>

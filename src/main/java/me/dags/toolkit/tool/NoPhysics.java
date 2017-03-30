@@ -16,7 +16,8 @@ import org.spongepowered.api.event.filter.cause.Named;
  */
 public class NoPhysics {
 
-    @Command(aliases = {"nophysics", "np"}, perm = @Permission("toolkit.nophysics"))
+    @Permission("toolkit.nophysics")
+    @Command(alias = {"nophysics", "np"})
     public void togglePhysics(@Caller Player player) {
         boolean value = Toolkit.getData(player).transform("option.nophysics", b -> !b, () -> false);
         Utils.notify(player, "Set no-physics to: ", value);

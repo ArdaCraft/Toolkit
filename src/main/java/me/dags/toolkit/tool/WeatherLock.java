@@ -15,7 +15,8 @@ public class WeatherLock {
 
     private boolean lock = true;
 
-    @Command(aliases = {"weatherlock", "wl"}, perm = @Permission("toolkit.weatherlock"))
+    @Permission("toolkit.weatherlock")
+    @Command(alias = {"weatherlock", "wl"})
     public void lock(@Caller CommandSource source) {
         lock = !lock;
         source.sendMessage(Text.of("Set weather lock: " + (lock ? "on" : "off")));

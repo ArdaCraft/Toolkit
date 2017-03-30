@@ -32,7 +32,8 @@ import java.util.stream.Collectors;
  */
 public class BiomeWand {
 
-    @Command(aliases = "biome", parent = "wand", perm = @Permission("toolkit.wand.biome"))
+    @Permission("toolkit.wand.biome")
+    @Command(alias = "biome", parent = "wand")
     public void biomeWandItem(@Caller Player player) {
         Optional<ItemStack> inHand = player.getItemInHand(HandTypes.MAIN_HAND);
         if (inHand.isPresent()) {
@@ -44,7 +45,8 @@ public class BiomeWand {
         }
     }
 
-    @Command(aliases = "biomes", perm = @Permission("toolkit.biomes"))
+    @Permission("toolkit.biomes")
+    @Command(alias = "biomes")
     public void biomeList(@Caller CommandSource source) {
         List<Text> lines = Sponge.getRegistry().getAllOf(BiomeType.class).stream()
                 .map(BiomeType::getName)
@@ -60,13 +62,15 @@ public class BiomeWand {
                 .sendTo(source);
     }
 
-    @Command(aliases = "biome", perm = @Permission("toolkit.wand.biome"))
+    @Permission("toolkit.wand.biome")
+    @Command(alias = "biome")
     public void biomeType(@Caller Player player) {
         BlockSnapshot snapshot = Utils.targetBlock(player, 50);
         snapshot.getLocation().ifPresent(l -> biomeType(player, l.getBiome().getName()));
     }
 
-    @Command(aliases = "biome", perm = @Permission("toolkit.wand.biome"))
+    @Permission("toolkit.wand.biome")
+    @Command(alias = "biome")
     public void biomeType(@Caller Player player, @Join("biome") String biome) {
         Sponge.getRegistry().getType(BiomeType.class, biome).ifPresent(biomeType -> {
             Toolkit.getData(player).set("option.wand.biome.type", biomeType);

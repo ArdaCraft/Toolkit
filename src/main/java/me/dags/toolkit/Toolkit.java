@@ -1,10 +1,7 @@
 package me.dags.toolkit;
 
 import me.dags.commandbus.CommandBus;
-import me.dags.toolkit.tool.BiomeWand;
-import me.dags.toolkit.tool.ItemGet;
-import me.dags.toolkit.tool.NoPhysics;
-import me.dags.toolkit.tool.WeatherLock;
+import me.dags.toolkit.tool.*;
 import me.dags.toolkit.utils.UserData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +51,10 @@ public class Toolkit {
         CommandBus commandBus = CommandBus.builder().logger(logger).build();
         modules.values().forEach(commandBus::register);
         modules.values().forEach(m -> Sponge.getEventManager().registerListeners(this, m));
+
+        // test
+        commandBus.register(new LightFixer());
+
         commandBus.submit(this);
     }
 

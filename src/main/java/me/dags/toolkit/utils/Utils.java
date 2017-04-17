@@ -25,13 +25,15 @@ public class Utils {
     }
 
     public static BlockSnapshot targetBlock(Player player) {
-        Optional<BlockRayHit<World>> hit = BlockRay.from(player).stopFilter(BlockRay.onlyAirFilter()).end();
+        Optional<BlockRayHit<World>> hit = BlockRay.from(player)
+                .stopFilter(BlockRay.continueAfterFilter(BlockRay.onlyAirFilter(), 1))
+                .end();
         return hit.isPresent() ? hit.get().getLocation().createSnapshot() : org.spongepowered.api.block.BlockSnapshot.NONE;
     }
 
     public static BlockSnapshot targetBlock(Player player, int limit) {
         Optional<BlockRayHit<World>> hit = BlockRay.from(player)
-                .stopFilter(BlockRay.onlyAirFilter())
+                .stopFilter(BlockRay.continueAfterFilter(BlockRay.onlyAirFilter(), 1))
                 .distanceLimit(limit)
                 .end();
 

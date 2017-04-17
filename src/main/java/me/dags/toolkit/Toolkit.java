@@ -22,7 +22,7 @@ public class Toolkit {
 
     public static final String ID = "toolkit";
     public static final String NAME = "Toolkit";
-    public static final String VERSION = "1.1-SNAPSHOT";
+    public static final String VERSION = "1.1.1-SNAPSHOT";
 
     private static final Logger logger = LoggerFactory.getLogger("Toolkit");
     private static final Map<UUID, UserData> userData = new HashMap<>();
@@ -44,6 +44,7 @@ public class Toolkit {
         Map<String, Object> modules = new HashMap<>();
         modules.put("get", new ItemGet());
         modules.put("wand.biome", new BiomeWand());
+        modules.put("wand.info", new InfoWand());
         modules.put("nophysics", new NoPhysics());
         modules.put("weatherlock", new WeatherLock());
 

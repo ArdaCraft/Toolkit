@@ -9,10 +9,13 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -22,21 +25,27 @@ public class Toolkit {
 
     public static final String ID = "toolkit";
     public static final String NAME = "Toolkit";
-    public static final String VERSION = "1.1.1-SNAPSHOT";
+    public static final String VERSION = "1.2.0-SNAPSHOT";
 
     private static final Logger logger = LoggerFactory.getLogger("Toolkit");
     private static final Map<UUID, UserData> userData = new HashMap<>();
+    private static PluginContainer container;
+
+    public static Cause getCause(Player player) {
+        return Cause.source(container).owner(player).build();
+    }
 
     public static UserData getData(Player player) {
-        UserData data = userData.get(player.getUniqueId());
-        if (data == null) {
-            userData.put(player.getUniqueId(), data = new UserData());
-        }
-        return data;
+        return userData.computeIfAbsent(player.getUniqueId(), k -> new UserData());
     }
 
     private static UserData removeData(Player player) {
         return userData.remove(player.getUniqueId());
+    }
+
+    @Inject
+    public Toolkit(PluginContainer container) {
+        Toolkit.container = container;;
     }
 
     @Listener
@@ -45,6 +54,7 @@ public class Toolkit {
         modules.put("get", new ItemGet());
         modules.put("wand.biome", new BiomeWand());
         modules.put("wand.info", new InfoWand());
+        modules.put("wand.select", new SelectWand());
         modules.put("nophysics", new NoPhysics());
         modules.put("weatherlock", new WeatherLock());
 

@@ -32,9 +32,12 @@ public class ItemGet {
     @Permission("toolkit.get.head")
     @Command(alias = "head", parent = "get")
     public void getHead(@Caller Player player, @One("player") User user) {
-        ItemStack stack = ItemStack.of(ItemTypes.SKULL, 1);
-        stack.offer(Keys.SKULL_TYPE, SkullTypes.PLAYER);
-        stack.offer(Keys.SKIN_UNIQUE_ID, user.getUniqueId());
+        ItemStack stack = ItemStack.builder()
+                .itemType(ItemTypes.SKULL)
+                .add(Keys.SKULL_TYPE, SkullTypes.PLAYER)
+                .add(Keys.SKIN_UNIQUE_ID, user.getUniqueId())
+                .build();
+
         player.getInventory().offer(stack);
     }
 }

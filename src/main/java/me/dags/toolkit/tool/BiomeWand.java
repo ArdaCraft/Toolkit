@@ -41,7 +41,8 @@ public class BiomeWand {
             Toolkit.getData(player).set("option.wand.biome.item", type);
             Utils.notify(player, "Set biome wand to: " + type.getName());
         } else {
-            Utils.error(player, "You must be holding an item to use that");
+            Toolkit.getData(player).remove("option.wand.biome.item");
+            Utils.notify(player, "Unset biome wand");
         }
     }
 

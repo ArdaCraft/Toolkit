@@ -35,7 +35,8 @@ public class InfoWand {
             Toolkit.getData(player).set("option.wand.info.item", type);
             Utils.notify(player, "Set info wand to: " + type.getName());
         } else {
-            Utils.error(player, "You must be holding an item to use that");
+            Toolkit.getData(player).remove("option.wand.info.item");
+            Utils.error(player, "Unset info wand");
         }
     }
 

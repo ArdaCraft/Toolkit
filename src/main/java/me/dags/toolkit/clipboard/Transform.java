@@ -16,6 +16,7 @@ import org.spongepowered.api.world.extent.BlockVolume;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * @author dags <dags@dags.me>
@@ -137,7 +138,7 @@ public class Transform {
         return this;
     }
 
-    public void apply(World world, BlockVolume source, int x, int y, int z, Vector3i pos, List<BlockSnapshot> history, Cause cause) {
+    public void apply(World world, BlockVolume source, int x, int y, int z, Vector3i pos, List<BlockSnapshot> history, UUID uuid, Cause cause) {
         BlockState state = source.getBlock(x, y, z);
         if (state.getType() == BlockTypes.AIR) {
             return;
@@ -175,6 +176,7 @@ public class Transform {
 
         history.add(world.createSnapshot(x, y, z));
         world.setBlock(x, y, z, state, BlockChangeFlag.NONE, cause);
+        world.setCreator(x, y ,z, uuid);
     }
 
     private static int rotateY(int a, int b, double rads, int sign) {

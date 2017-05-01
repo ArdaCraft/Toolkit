@@ -32,7 +32,7 @@ public class Toolkit {
     private static PluginContainer container;
 
     public static Cause getCause(Player player) {
-        return Cause.source(container).owner(player).build();
+        return Cause.source(container).owner(player.getUniqueId()).notifier(player.getUniqueId()).build();
     }
 
     public static UserData getData(Player player) {

@@ -17,6 +17,7 @@ import org.spongepowered.api.world.extent.ArchetypeVolume;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author dags <dags@dags.me>
@@ -39,13 +40,14 @@ public class Clipboard {
 
     public void apply(Player player, Vector3i position, Cause cause) {
         World world = player.getWorld();
+        UUID uuid = player.getUniqueId();
         Direction direction = Utils.direction(Utils.directionVector(player.getRotation()));
 
         transform.rotate(this.direction, direction);
         transform.setUp();
 
         history = new LinkedList<>();
-        blocks.getBlockWorker(cause).iterate((v, x, y, z) -> transform.apply(world, v, x, y, z, position, history, cause));
+        blocks.getBlockWorker(cause).iterate((v, x, y, z) -> transform.apply(world, v, x, y, z, position, history, uuid, cause));
     }
 
     public void undo() {

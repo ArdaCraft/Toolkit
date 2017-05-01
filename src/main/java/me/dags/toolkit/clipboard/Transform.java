@@ -7,6 +7,7 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.trait.BlockTrait;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.util.Axis;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.World;
@@ -53,9 +54,7 @@ public class Transform {
     }
 
     public Transform rotate(Direction from, Direction to) {
-        if (rotate) {
-            rotate(Utils.getAngle(from, to));
-        }
+        rotate(rotate ? Utils.getAngle(from, to) : 0);
         return this;
     }
 
@@ -132,14 +131,14 @@ public class Transform {
 
         if (flipX) {
             z = -z;
-            state = rotateFacing(state, 180);
-            state = rotateAxis(state, 180);
+            state = flipFacing(state, Axis.X);
+            state = flipHinge(state);
         }
 
         if (flipZ) {
             x = -x;
-            state = rotateFacing(state, 180);
-            state = rotateAxis(state, 180);
+            state = flipFacing(state, Axis.Z);
+            state = flipHinge(state);
         }
 
         x += pos.getX();
@@ -168,6 +167,20 @@ public class Transform {
         return state;
     }
 
+    private static BlockState flipFacing(BlockState state, Axis axis) {
+        Optional<BlockTrait<?>> facing = state.getTrait("facing");
+        if (facing.isPresent()) {
+            Optional<?> val = state.getTraitValue(facing.get());
+            if (val.isPresent()) {
+                Object flipped = Utils.flipFacing(facing.get(), val.get(), axis);
+                if (flipped != null) {
+                    return state.withTrait(facing.get(), flipped).orElse(state);
+                }
+            }
+        }
+        return state;
+    }
+
     private static BlockState rotateAxis(BlockState state, int angle) {
         Optional<BlockTrait<?>> axis = state.getTrait("axis");
         if (axis.isPresent()) {
@@ -182,6 +195,20 @@ public class Transform {
         return state;
     }
 
+    private static BlockState flipHinge(BlockState state) {
+        Optional<BlockTrait<?>> hinge = state.getTrait("hinge");
+        if (hinge.isPresent()) {
+            Optional<?> val = state.getTraitValue(hinge.get());
+            if (val.isPresent()) {
+                Object flipped = Utils.flipHinge(hinge.get(), val.get());
+                if (flipped != null) {
+                    return state.withTrait(hinge.get(), flipped).orElse(state);
+                }
+            }
+        }
+        return state;
+    }
+
     private static BlockState flipHalf(BlockState state) {
         Optional<BlockTrait<?>> half = state.getTrait("half");
         if (half.isPresent()) {
@@ -189,7 +216,12 @@ public class Transform {
             if (val.isPresent()) {
                 Object flipped = Utils.flipHalf(half.get(), val.get());
                 if (flipped != null) {
-                    return state.withTrait(half.get(), flipped).orElse(state);
+                    state = state.withTrait(half.get(), flipped).orElse(state);
+
+                    // doors are weird...
+                    if (state.getTrait("hinge").isPresent()) {
+                        state = rotateFacing(state, 90);
+                    }
                 }
             }
         }

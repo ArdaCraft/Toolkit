@@ -1,5 +1,6 @@
 package me.dags.toolkit.tool;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import me.dags.commandbus.annotation.Caller;
 import me.dags.commandbus.annotation.Command;
@@ -18,6 +19,7 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.util.Direction;
 
 import java.util.Optional;
 
@@ -45,6 +47,16 @@ public class SelectWand {
     }
 
     @Permission("toolkit.select")
+    @Command(alias = "range", parent = "wand select")
+    public void range(@Caller Player player, @One("range") int range) {
+        Optional<Selector> selector = Toolkit.getData(player).get("option.wand.select.selector");
+        if (selector.isPresent()) {
+            selector.get().range = Math.max(1, Math.min(range, 25));
+            Utils.notify(player, "Set range to ", selector.get().range);
+        }
+    }
+
+    @Permission("toolkit.select")
     @Command(alias = "reset", parent = "wand select")
     public void reset(@Caller Player player) {
         FMT.info("Resetting selection wand").tell(player);
@@ -60,6 +72,23 @@ public class SelectWand {
         if (transform.isPresent()) {
             Utils.notify(player,"Set rotate: ", rotate);
             transform.get().rotate(rotate);
+        }
+    }
+
+    @Permission("toolkit.select")
+    @Command(alias = "flip", parent = "wand select")
+    public void flip(@Caller Player player, @One("flip") boolean flip) {
+        Vector3d rotation = player.getRotation();
+        if (rotation.getX() > 45 || rotation.getX() < -45) {
+            flipY(player, flip);
+        } else {
+            Direction direction = Utils.direction(Utils.directionVector(rotation));
+
+            if (direction == Direction.EAST || direction == Direction.WEST) {
+                flipZ(player, flip);
+            } else {
+                flipX(player, flip);
+            }
         }
     }
 
@@ -89,7 +118,7 @@ public class SelectWand {
         Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
         if (transform.isPresent()) {
             Utils.notify(player,"Set flip Z: ", flipZ);
-            transform.get().flipY(flipZ);
+            transform.get().flipZ(flipZ);
         }
     }
 
@@ -125,20 +154,22 @@ public class SelectWand {
 
     @Listener
     public void interact(InteractItemEvent.Secondary.MainHand event, @Root Player player) {
-        Vector3i target = Utils.targetPosition(player, 25);
         Optional<ItemType> inHand = player.getItemInHand(HandTypes.MAIN_HAND).map(ItemStack::getItem);
 
-        if (target != Vector3i.ZERO && inHand.isPresent()) {
+        if (inHand.isPresent()) {
             Optional<ItemType> wand = Toolkit.getData(player).get("option.wand.select.item");
             if (wand.isPresent() && wand.get() == inHand.get()) {
                 event.setCancelled(true);
+
+                Selector selector = Toolkit.getData(player).get("option.wand.select.selector", Selector::new);
+                Vector3i target = Utils.targetPosition(player, selector.range);
 
                 Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.volume");
                 if (clipBoard.isPresent()) {
                     Utils.notify(player, "Pasting...");
                     clipBoard.get().apply(player, target, Toolkit.getCause(player));
                 } else {
-                    Toolkit.getData(player).get("option.wand.select.selector", Selector::new).pos(player, target);
+                    selector.pos(player, target);
                 }
             }
         }
@@ -169,6 +200,7 @@ public class SelectWand {
 
     private static class Selector {
 
+        private int range = 25;
         private Vector3i pos1 = Vector3i.ZERO;
         private Vector3i pos2 = Vector3i.ZERO;
 

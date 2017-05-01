@@ -21,6 +21,18 @@ import java.util.Optional;
  */
 public class Utils {
 
+    public static Object flipHalf(BlockTrait<?> trait, Object value) {
+        String half = getOppositeHalf(value);
+        if (half != null) {
+            for (Object object : trait.getPossibleValues()) {
+                if (object.toString().equals(half)) {
+                    return object;
+                }
+            }
+        }
+        return null;
+    }
+
     public static Object rotateFacing(BlockTrait<?> trait, Object value, int angle) {
         int current = getAngle(value.toString());
         int next = clampAngle(current + angle);
@@ -30,7 +42,7 @@ public class Utils {
                 return object;
             }
         }
-        return value;
+        return null;
     }
 
     public static Object rotateAxis(BlockTrait<?> trait, Object value, int angle) {
@@ -43,13 +55,28 @@ public class Utils {
                 }
             }
         }
-        return value;
+        return null;
     }
 
     public static int getAngle(Direction from, Direction to) {
         int fromAngle = getAngle(from);
         int toAngle = getAngle(to);
         return clampAngle(toAngle - fromAngle);
+    }
+
+    public static String getOppositeHalf(Object input) {
+        switch (input.toString()) {
+            case "bottom":
+                return "top";
+            case "top":
+                return "bottom";
+            case "upper":
+                return "lower";
+            case "lower":
+                return "upper";
+            default:
+                return null;
+        }
     }
 
     public static String getFacing(int angle) {

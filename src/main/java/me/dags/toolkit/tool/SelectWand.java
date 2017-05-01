@@ -3,9 +3,12 @@ package me.dags.toolkit.tool;
 import com.flowpowered.math.vector.Vector3i;
 import me.dags.commandbus.annotation.Caller;
 import me.dags.commandbus.annotation.Command;
+import me.dags.commandbus.annotation.One;
 import me.dags.commandbus.annotation.Permission;
 import me.dags.commandbus.format.FMT;
 import me.dags.toolkit.Toolkit;
+import me.dags.toolkit.clipboard.Clipboard;
+import me.dags.toolkit.clipboard.Transform;
 import me.dags.toolkit.utils.Utils;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
@@ -23,6 +26,8 @@ import java.util.Optional;
  */
 public class SelectWand {
 
+    private static int maxSize = 50000;
+
     @Permission("toolkit.select")
     @Command(alias = "select", parent = "wand")
     public void select(@Caller Player player) {
@@ -33,8 +38,88 @@ public class SelectWand {
         } else {
             FMT.info("Removed selection wand").tell(player);
             Toolkit.getData(player).remove("option.wand.select.item");
-            Toolkit.getData(player).remove("option.wand.select.selector");
             Toolkit.getData(player).remove("option.wand.select.volume");
+            Toolkit.getData(player).remove("option.wand.select.selector");
+            Toolkit.getData(player).remove("option.wand.select.transform");
+        }
+    }
+
+    @Permission("toolkit.select")
+    @Command(alias = "reset", parent = "wand select")
+    public void reset(@Caller Player player) {
+        FMT.info("Resetting selection wand").tell(player);
+        Toolkit.getData(player).remove("option.wand.select.volume");
+        Toolkit.getData(player).remove("option.wand.select.selector");
+        Toolkit.getData(player).remove("option.wand.select.transform");
+    }
+
+    @Permission("toolkit.select")
+    @Command(alias = "rotate", parent = "wand select")
+    public void rotate(@Caller Player player, @One("rotate") boolean rotate) {
+        Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
+        if (transform.isPresent()) {
+            Utils.notify(player,"Set rotate: ", rotate);
+            transform.get().rotate(rotate);
+        }
+    }
+
+    @Permission("toolkit.select")
+    @Command(alias = "x", parent = "wand select")
+    public void flipX(@Caller Player player, @One("flip x") boolean flipX) {
+        Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
+        if (transform.isPresent()) {
+            Utils.notify(player,"Set flip X: ", flipX);
+            transform.get().flipX(flipX);
+        }
+    }
+
+    @Permission("toolkit.select")
+    @Command(alias = "y", parent = "wand select")
+    public void flipY(@Caller Player player, @One("flip y") boolean flipY) {
+        Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
+        if (transform.isPresent()) {
+            Utils.notify(player,"Set flip Y: ", flipY);
+            transform.get().flipY(flipY);
+        }
+    }
+
+    @Permission("toolkit.select")
+    @Command(alias = "z", parent = "wand select")
+    public void flipZ(@Caller Player player, @One("flip z") boolean flipZ) {
+        Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
+        if (transform.isPresent()) {
+            Utils.notify(player,"Set flip Z: ", flipZ);
+            transform.get().flipY(flipZ);
+        }
+    }
+
+    @Permission("toolkit.select")
+    @Command(alias = "rotate", parent = "wand select random")
+    public void randomRotate(@Caller Player player, @One("random") boolean random) {
+        Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
+        if (transform.isPresent()) {
+            Utils.notify(player,"Set random rotation: ", random);
+            transform.get().randomRotate(random);
+        }
+    }
+
+    @Permission("toolkit.select")
+    @Command(alias = "vertical", parent = "wand select random")
+    public void randomVertical(@Caller Player player, @One("random") boolean random) {
+        Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
+        if (transform.isPresent()) {
+            Utils.notify(player,"Set random vertical flip: ", random);
+            transform.get().randomVertical(random);
+        }
+    }
+
+    @Permission("toolkit.select")
+    @Command(alias = "horizontal", parent = "wand select random")
+    public void randomHorizontal(@Caller Player player, @One("random") boolean random) {
+        Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
+        if (transform.isPresent()) {
+            Utils.notify(player,"Set random horizontal flip: ", random);
+            transform.get().randomHorizontal(random);
         }
     }
 
@@ -45,8 +130,9 @@ public class SelectWand {
 
         if (target != Vector3i.ZERO && inHand.isPresent()) {
             Optional<ItemType> wand = Toolkit.getData(player).get("option.wand.select.item");
-            if (wand.isPresent() && wand.get().equals(inHand.get())) {
+            if (wand.isPresent() && wand.get() == inHand.get()) {
                 event.setCancelled(true);
+
                 Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.volume");
                 if (clipBoard.isPresent()) {
                     Utils.notify(player, "Pasting...");
@@ -62,19 +148,21 @@ public class SelectWand {
     public void interact(InteractItemEvent.Primary.MainHand event, @Root Player player) {
         Optional<ItemType> inHand = player.getItemInHand(HandTypes.MAIN_HAND).map(ItemStack::getItem);
         if (inHand.isPresent()) {
-            event.setCancelled(true);
-            Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.volume");
-            if (clipBoard.isPresent()) {
-                if (player.get(Keys.IS_SNEAKING).orElse(false)) {
-                    Utils.notify(player, "Clearing clipboard");
-                    Toolkit.getData(player).remove("option.wand.select.volume");
-                } else {
-                    Utils.notify(player, "Undoing paste....");
-                    clipBoard.get().undo();
+            Optional<ItemType> wand = Toolkit.getData(player).get("option.wand.select.item");
+            if (wand.isPresent() && wand.get() == inHand.get()) {
+                event.setCancelled(true);
+
+                Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.volume");
+                if (clipBoard.isPresent()) {
+                    if (player.get(Keys.IS_SNEAKING).orElse(false)) {
+                        Utils.notify(player, "Clearing clipboard & selection points");
+                        Toolkit.getData(player).remove("option.wand.select.volume");
+                        Toolkit.getData(player).remove("option.wand.select.selector");
+                    } else {
+                        Utils.notify(player, "Undoing paste....");
+                        clipBoard.get().undo();
+                    }
                 }
-            } else {
-                Utils.notify(player, "Resetting selection points");
-                Toolkit.getData(player).remove("option.wand.select.selector");
             }
         }
     }
@@ -94,12 +182,12 @@ public class SelectWand {
             } else if (player.get(Keys.IS_SNEAKING).orElse(false)) {
                 Vector3i min = pos1.min(pos2);
                 Vector3i max = pos1.max(pos2);
-                if (size(min, max) <= 100000) {
+                if (size(min, max) <= maxSize) {
                     Clipboard clipboard = Clipboard.of(player, min, max, pos);
                     Toolkit.getData(player).set("option.wand.select.volume", clipboard);
                     Utils.notify(player, "Copied selection");
                 } else {
-                    Utils.error(player, "Selection size too large!");
+                    Utils.error(player, "Selection size is too large!");
                 }
             } else {
                 pos1 = Vector3i.ZERO;

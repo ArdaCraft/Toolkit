@@ -53,6 +53,34 @@ public class Transform {
         return this;
     }
 
+    public boolean randomRotate() {
+        return randomRotate;
+    }
+
+    public boolean randomHorizontal() {
+        return randomHorizontal;
+    }
+
+    public boolean randomVertical() {
+        return randomVertical;
+    }
+
+    public boolean rotate() {
+        return rotate;
+    }
+
+    public boolean flipX() {
+        return flipX;
+    }
+
+    public boolean flipY() {
+        return flipY;
+    }
+
+    public boolean flipZ() {
+        return flipZ;
+    }
+
     public Transform rotate(Direction from, Direction to) {
         rotate(rotate ? Utils.getAngle(from, to) : 0);
         return this;

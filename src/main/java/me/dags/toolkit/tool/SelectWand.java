@@ -67,88 +67,87 @@ public class SelectWand {
 
     @Permission("toolkit.select")
     @Command(alias = "rotate", parent = "wand select")
-    public void rotate(@Caller Player player, @One("rotate") boolean rotate) {
+    public void rotate(@Caller Player player) {
         Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
         if (transform.isPresent()) {
-            Utils.notify(player,"Set rotate: ", rotate);
-            transform.get().rotate(rotate);
+            transform.get().rotate(!transform.get().rotate());
+            Utils.notify(player,"Set rotate: ", transform.get().rotate());
         }
     }
 
     @Permission("toolkit.select")
     @Command(alias = "flip", parent = "wand select")
-    public void flip(@Caller Player player, @One("flip") boolean flip) {
+    public void flip(@Caller Player player) {
         Vector3d rotation = player.getRotation();
         if (rotation.getX() > 45 || rotation.getX() < -45) {
-            flipY(player, flip);
+            flipY(player);
         } else {
             Direction direction = Utils.direction(Utils.directionVector(rotation));
-
             if (direction == Direction.EAST || direction == Direction.WEST) {
-                flipZ(player, flip);
+                flipZ(player);
             } else {
-                flipX(player, flip);
+                flipX(player);
             }
         }
     }
 
     @Permission("toolkit.select")
-    @Command(alias = "x", parent = "wand select")
-    public void flipX(@Caller Player player, @One("flip x") boolean flipX) {
+    @Command(alias = "x", parent = "wand select flip")
+    public void flipX(@Caller Player player) {
         Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
         if (transform.isPresent()) {
-            Utils.notify(player,"Set flip X: ", flipX);
-            transform.get().flipX(flipX);
+            transform.get().flipX(!transform.get().flipX());
+            Utils.notify(player,"Set flip X: ", transform.get().flipX());
         }
     }
 
     @Permission("toolkit.select")
-    @Command(alias = "y", parent = "wand select")
-    public void flipY(@Caller Player player, @One("flip y") boolean flipY) {
+    @Command(alias = "y", parent = "wand select flip")
+    public void flipY(@Caller Player player) {
         Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
         if (transform.isPresent()) {
-            Utils.notify(player,"Set flip Y: ", flipY);
-            transform.get().flipY(flipY);
+            transform.get().flipY(!transform.get().flipY());
+            Utils.notify(player,"Set flip Y: ", transform.get().flipY());
         }
     }
 
     @Permission("toolkit.select")
-    @Command(alias = "z", parent = "wand select")
-    public void flipZ(@Caller Player player, @One("flip z") boolean flipZ) {
+    @Command(alias = "z", parent = "wand select flip")
+    public void flipZ(@Caller Player player) {
         Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
         if (transform.isPresent()) {
-            Utils.notify(player,"Set flip Z: ", flipZ);
-            transform.get().flipZ(flipZ);
+            transform.get().flipZ(!transform.get().flipZ());
+            Utils.notify(player,"Set flip Z: ", transform.get().flipZ());
         }
     }
 
     @Permission("toolkit.select")
     @Command(alias = "rotate", parent = "wand select random")
-    public void randomRotate(@Caller Player player, @One("random") boolean random) {
+    public void randomRotate(@Caller Player player) {
         Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
         if (transform.isPresent()) {
-            Utils.notify(player,"Set random rotation: ", random);
-            transform.get().randomRotate(random);
+            transform.get().randomRotate(!transform.get().randomRotate());
+            Utils.notify(player,"Set random rotation: ", transform.get().randomRotate());
         }
     }
 
     @Permission("toolkit.select")
     @Command(alias = "vertical", parent = "wand select random")
-    public void randomVertical(@Caller Player player, @One("random") boolean random) {
+    public void randomVertical(@Caller Player player) {
         Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
         if (transform.isPresent()) {
-            Utils.notify(player,"Set random vertical flip: ", random);
-            transform.get().randomVertical(random);
+            transform.get().randomVertical(!transform.get().randomVertical());
+            Utils.notify(player,"Set random vertical flip: ", transform.get().randomVertical());
         }
     }
 
     @Permission("toolkit.select")
     @Command(alias = "horizontal", parent = "wand select random")
-    public void randomHorizontal(@Caller Player player, @One("random") boolean random) {
+    public void randomHorizontal(@Caller Player player) {
         Optional<Transform> transform = Toolkit.getData(player).get("option.wand.select.transform");
         if (transform.isPresent()) {
-            Utils.notify(player,"Set random horizontal flip: ", random);
-            transform.get().randomHorizontal(random);
+            transform.get().randomHorizontal(!transform.get().randomHorizontal());
+            Utils.notify(player,"Set random horizontal flip: ", transform.get().randomHorizontal());
         }
     }
 

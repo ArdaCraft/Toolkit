@@ -3,6 +3,7 @@ package me.dags.toolkit.tool;
 import me.dags.commandbus.annotation.Caller;
 import me.dags.commandbus.annotation.Command;
 import me.dags.commandbus.annotation.Permission;
+import me.dags.commandbus.format.FMT;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
@@ -28,6 +29,8 @@ public class LongCommand {
                 command.append(message);
             }
             Sponge.getCommandManager().process(player, command.toString());
+        } else {
+            FMT.error("You must be holding a book with the command written in it").tell(player);
         }
     }
 }

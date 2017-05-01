@@ -28,7 +28,8 @@ import java.util.Optional;
  */
 public class SelectWand {
 
-    private static int maxSize = 50000;
+    private static final int defaultSize = 20000;
+    private static final int extendedSize = 50000;
 
     @Permission("toolkit.select")
     @Command(alias = "select", parent = "wand")
@@ -209,16 +210,19 @@ public class SelectWand {
                 Utils.notify(player, "Set pos1 " + pos);
             } else if (pos2 == Vector3i.ZERO) {
                 pos2 = pos;
-                Utils.notify(player, "Set pos2 " + pos);
+                int size = size(pos1.min(pos2), pos1.max(pos2));
+                Utils.notify(player, "Set pos2 ", pos, ", volume: ", size);
             } else if (player.get(Keys.IS_SNEAKING).orElse(false)) {
                 Vector3i min = pos1.min(pos2);
                 Vector3i max = pos1.max(pos2);
-                if (size(min, max) <= maxSize) {
+                int size = size(min, max);
+                int limit = player.hasPermission("toolkit.wand.select.limit.expanded") ? extendedSize : defaultSize;
+                if (size <= limit) {
                     Clipboard clipboard = Clipboard.of(player, min, max, pos);
                     Toolkit.getData(player).set("option.wand.select.volume", clipboard);
-                    Utils.notify(player, "Copied selection");
+                    Utils.notify(player, "Copied selection, size: ", size);
                 } else {
-                    Utils.error(player, "Selection size is too large!");
+                    Utils.error(player, "Selection size is too large!: ", size, "/", limit);
                 }
             } else {
                 pos1 = Vector3i.ZERO;

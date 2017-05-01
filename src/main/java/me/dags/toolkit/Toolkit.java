@@ -25,7 +25,7 @@ public class Toolkit {
 
     public static final String ID = "toolkit";
     public static final String NAME = "Toolkit";
-    public static final String VERSION = "1.2.0-SNAPSHOT";
+    public static final String VERSION = "1.2.1-SNAPSHOT";
 
     private static final Logger logger = LoggerFactory.getLogger("Toolkit");
     private static final Map<UUID, UserData> userData = new HashMap<>();
@@ -57,6 +57,7 @@ public class Toolkit {
         modules.put("wand.select", new SelectWand());
         modules.put("nophysics", new NoPhysics());
         modules.put("weatherlock", new WeatherLock());
+        modules.put("longcommand", new LongCommand());
 
         // TODO - check against config to see if tool is enabled before registering it
         CommandBus commandBus = CommandBus.builder().logger(logger).build();

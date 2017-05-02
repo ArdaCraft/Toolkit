@@ -156,7 +156,33 @@ public class SelectWand {
     }
 
     @Listener
-    public void interact(InteractItemEvent.Secondary.MainHand event, @Root Player player) {
+    public void interactPrimary(InteractItemEvent.Primary.MainHand event, @Root Player player) {
+        Optional<ItemType> inHand = player.getItemInHand(HandTypes.MAIN_HAND).map(ItemStack::getItem);
+        if (inHand.isPresent()) {
+            Optional<ItemType> wand = Toolkit.getData(player).get("option.wand.select.item");
+            if (wand.isPresent() && wand.get() == inHand.get()) {
+                event.setCancelled(true);
+
+                Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.clipboard");
+                if (clipBoard.isPresent()) {
+                    if (player.get(Keys.IS_SNEAKING).orElse(false)) {
+                        Utils.notify(player, "Clearing clipboard & selection points");
+                        Toolkit.getData(player).remove("option.wand.select.clipboard");
+                        Toolkit.getData(player).<Selector>get("option.wand.select.selector").ifPresent(selector -> {
+                            selector.pos1 = Vector3i.ZERO;
+                            selector.pos2 = Vector3i.ZERO;
+                        });
+                    } else {
+                        Utils.notify(player, "Undoing paste....");
+                        clipBoard.get().undo(player);
+                    }
+                }
+            }
+        }
+    }
+
+    @Listener
+    public void interactSecondary(InteractItemEvent.Secondary.MainHand event, @Root Player player) {
         Optional<ItemType> inHand = player.getItemInHand(HandTypes.MAIN_HAND).map(ItemStack::getItem);
 
         if (inHand.isPresent()) {
@@ -173,29 +199,6 @@ public class SelectWand {
                     clipBoard.get().apply(player, target, Toolkit.getCause(player));
                 } else {
                     selector.pos(player, target);
-                }
-            }
-        }
-    }
-
-    @Listener
-    public void interact(InteractItemEvent.Primary.MainHand event, @Root Player player) {
-        Optional<ItemType> inHand = player.getItemInHand(HandTypes.MAIN_HAND).map(ItemStack::getItem);
-        if (inHand.isPresent()) {
-            Optional<ItemType> wand = Toolkit.getData(player).get("option.wand.select.item");
-            if (wand.isPresent() && wand.get() == inHand.get()) {
-                event.setCancelled(true);
-
-                Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.clipboard");
-                if (clipBoard.isPresent()) {
-                    if (player.get(Keys.IS_SNEAKING).orElse(false)) {
-                        Utils.notify(player, "Clearing clipboard & selection points");
-                        Toolkit.getData(player).remove("option.wand.select.clipboard");
-                        Toolkit.getData(player).remove("option.wand.select.selector");
-                    } else {
-                        Utils.notify(player, "Undoing paste....");
-                        clipBoard.get().undo(player);
-                    }
                 }
             }
         }

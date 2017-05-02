@@ -180,13 +180,15 @@ public class Transform {
         y += pos.getY();
         z += pos.getZ();
 
-        history.add(world.createSnapshot(x, y, z));
+        if (y > -1 && y < 256) {
+            history.add(world.createSnapshot(x, y, z));
 
-        world.setCreator(x, y, z, uuid);
-        world.setBlock(x, y, z, state, BlockChangeFlag.NONE, cause);
+            world.setCreator(x, y, z, uuid);
+            world.setBlock(x, y, z, state, BlockChangeFlag.NONE, cause);
 
-        if (tile.isPresent()) {
-            tile.get().apply(new Location<>(world, x, y, z), cause);
+            if (tile.isPresent()) {
+                tile.get().apply(new Location<>(world, x, y, z), cause);
+            }
         }
     }
 

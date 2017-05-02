@@ -10,6 +10,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
@@ -32,7 +33,11 @@ public class Toolkit {
     private static PluginContainer container;
 
     public static Cause getCause(Player player) {
-        return Cause.source(container).owner(player.getUniqueId()).notifier(player.getUniqueId()).build();
+        return Cause.source(container)
+                .owner(player.getUniqueId())
+                .notifier(player.getUniqueId())
+                .named(NamedCause.PLAYER_PLACE, player)
+                .build();
     }
 
     public static UserData getData(Player player) {

@@ -181,7 +181,7 @@ public class Transform {
         y += pos.getY();
         z += pos.getZ();
 
-        if (y > -1 && y < 256) {
+        if (y > 0 && y < 256) {
             history.add(world.createSnapshot(x, y, z));
 
             world.setCreator(x, y, z, uuid);

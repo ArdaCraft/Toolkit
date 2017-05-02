@@ -48,9 +48,21 @@ public class Utils {
     public static Object flipFacing(BlockTrait<?> trait, Object value, Axis flipAxis) {
         Direction direction = getDirection(value.toString());
         if (direction != null) {
-            if (fromDirection(direction) != flipAxis) {
+            String facing = null;
+            Axis axis = getAxis(direction);
+
+            boolean isVertical = flipAxis == Axis.Y;
+
+            if (isVertical && axis == Axis.Y) {
+                facing = direction == Direction.UP ? "down" : "up";
+            }
+
+            if (!isVertical && axis != flipAxis) {
                 int angle = clampAngle(getAngle(direction) + 180);
-                String facing = getFacing(angle);
+                facing = getFacing(angle);
+            }
+
+            if (facing != null) {
                 for (Object object : trait.getPossibleValues()) {
                     if (object.toString().equalsIgnoreCase(facing)) {
                         return object;
@@ -58,18 +70,25 @@ public class Utils {
                 }
             }
         }
+
         return null;
     }
 
     public static Object rotateFacing(BlockTrait<?> trait, Object value, int angle) {
         int current = getAngle(value.toString());
+        if (current == -1) {
+            return null;
+        }
+
         int next = clampAngle(current + angle);
         String facing = getFacing(next);
+
         for (Object object : trait.getPossibleValues()) {
             if (object.toString().equalsIgnoreCase(facing)) {
                 return object;
             }
         }
+
         return null;
     }
 
@@ -107,7 +126,7 @@ public class Utils {
         }
     }
 
-    public static Axis fromDirection(Direction direction) {
+    public static Axis getAxis(Direction direction) {
         switch (direction) {
             case EAST:
             case WEST:
@@ -131,8 +150,10 @@ public class Utils {
                 return "south";
             case 270:
                 return "west";
-            default:
+            case 0:
                 return "north";
+            default:
+                return null;
         }
     }
 
@@ -146,6 +167,10 @@ public class Utils {
                 return Direction.WEST;
             case "north":
                 return Direction.NORTH;
+            case "up":
+                return Direction.UP;
+            case "down":
+                return Direction.DOWN;
             default:
                 return null;
         }
@@ -159,8 +184,10 @@ public class Utils {
                 return 180;
             case "west":
                 return 270;
-            default:
+            case "north":
                 return 0;
+            default:
+                return -1;
         }
     }
 
@@ -178,7 +205,7 @@ public class Utils {
     }
 
     public static int clampAngle(int input) {
-        return input < 0 ? 360 + input : input > 360 ? input - 360 : input;
+        return input < 0 ? 360 + input : input > 359 ? input - 360 : input;
     }
 
     public static Vector3d directionVector(Vector3d rotation) {

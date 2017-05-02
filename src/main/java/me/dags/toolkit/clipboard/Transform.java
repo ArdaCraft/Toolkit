@@ -162,6 +162,7 @@ public class Transform {
         if (flipY) {
             y = -y;
             state = flipHalf(state);
+            state = flipFacing(state, Axis.Y);
         }
 
         if (flipX) {

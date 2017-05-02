@@ -37,7 +37,10 @@ public class SelectWand {
         Optional<ItemType> inHand = player.getItemInHand(HandTypes.MAIN_HAND).map(ItemStack::getItem);
         if (inHand.isPresent()) {
             FMT.info("Set select wand to ").stress(inHand.get().getName()).tell(player);
+            Toolkit.getData(player).remove("option.wand.select.clipboard");
             Toolkit.getData(player).set("option.wand.select.item", inHand.get());
+            Toolkit.getData(player).set("option.wand.select.selector", new Selector());
+            Toolkit.getData(player).set("option.wand.select.transform", new Transform());
         } else {
             FMT.info("Removed selection wand").tell(player);
             Toolkit.getData(player).remove("option.wand.select.item");

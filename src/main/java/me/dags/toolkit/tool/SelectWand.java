@@ -211,7 +211,7 @@ public class SelectWand {
             } else if (pos2 == Vector3i.ZERO) {
                 pos2 = pos;
                 int size = size(pos1.min(pos2), pos1.max(pos2));
-                Utils.notify(player, "Set pos2 ", pos, ", Size: ", size);
+                Utils.notify(player, "Set pos2 ", pos, " (", size, " blocks)");
             } else if (player.get(Keys.IS_SNEAKING).orElse(false)) {
                 Vector3i min = pos1.min(pos2);
                 Vector3i max = pos1.max(pos2);
@@ -220,9 +220,9 @@ public class SelectWand {
                 if (size <= limit) {
                     Clipboard clipboard = Clipboard.of(player, min, max, pos);
                     Toolkit.getData(player).set("option.wand.select.clipboard", clipboard);
-                    Utils.notify(player, "Copied selection, Size: ", size);
+                    Utils.notify(player, "Copied (", size, " blocks)");
                 } else {
-                    Utils.error(player, "Selection size is too large!: ", size, "/", limit);
+                    Utils.error(player, "Selection size is too large! (", size, " / ", limit, " blocks)");
                 }
             } else {
                 pos1 = Vector3i.ZERO;
@@ -233,9 +233,9 @@ public class SelectWand {
         }
 
         private int size(Vector3i min, Vector3i max) {
-            int lx = max.getX() - min.getX();
-            int ly = max.getY() - min.getY();
-            int lz = max.getZ() - min.getZ();
+            int lx = max.getX() - min.getX() + 1;
+            int ly = max.getY() - min.getY() + 1;
+            int lz = max.getZ() - min.getZ() + 1;
             return lx * ly * lz;
         }
     }

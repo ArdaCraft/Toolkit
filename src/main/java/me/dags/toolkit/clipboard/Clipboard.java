@@ -47,15 +47,15 @@ public class Clipboard {
 
         List<BlockSnapshot> record = history.nextRecord();
 
-        Utils.notify(player, "Pasting...");
+        Utils.notify(player, "Paste");
         blocks.getBlockWorker(cause).iterate((v, x, y, z) -> transform.apply(world, v, x, y, z, position, record, uuid, cause));
-        entities.forEach((entity, offset) -> transform.apply(world, entity, offset, position, cause));
+        // entities.forEach((entity, offset) -> transform.apply(world, entity, offset, position, cause));
     }
 
     public void undo(Player player) {
-        List<BlockSnapshot> record = history.popRecord();
-        if (record != null) {
-            Utils.notify(player, "Undoing...");
+        if (history.hasNext()) {
+            List<BlockSnapshot> record = history.popRecord();
+            Utils.notify(player, "Undo (", history.getSize(), "/", history.getMax(), ")");
             for (BlockSnapshot snapshot : record) {
                 snapshot.restore(true, BlockChangeFlag.NONE);
             }

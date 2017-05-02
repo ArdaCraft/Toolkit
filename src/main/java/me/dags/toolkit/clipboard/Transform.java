@@ -8,9 +8,7 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntityArchetype;
 import org.spongepowered.api.block.trait.BlockTrait;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityArchetype;
-import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.Axis;
 import org.spongepowered.api.util.Direction;
@@ -18,7 +16,6 @@ import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.extent.ArchetypeVolume;
-import org.spongepowered.api.world.extent.BlockVolume;
 
 import java.util.List;
 import java.util.Optional;

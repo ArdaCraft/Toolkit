@@ -21,6 +21,10 @@ public class History {
         return history.removeLast();
     }
 
+    public boolean hasNext() {
+        return !history.isEmpty();
+    }
+
     public List<BlockSnapshot> nextRecord() {
         List<BlockSnapshot> list = new LinkedList<>();
         if (history.size() < size) {
@@ -30,5 +34,13 @@ public class History {
             history.add(list);
         }
         return list;
+    }
+
+    public int getSize() {
+        return history.size();
+    }
+
+    public int getMax() {
+        return size;
     }
 }

@@ -31,29 +31,30 @@ import java.util.Set;
 public class CommandBook {
 
     @Listener
-    public void itemUse(InteractItemEvent.Secondary.MainHand event, @Root Player player) {
+    public void itemUse(InteractItemEvent.Primary.MainHand event, @Root Player player) {
         Optional<List<Text>> pages = player.getItemInHand(HandTypes.MAIN_HAND).flatMap(i -> i.get(Keys.BOOK_PAGES));
         if (pages.isPresent() && pages.get().size() > 0 && player.hasPermission("toolkit.commandbook")) {
+            if (player.get(Keys.IS_SNEAKING).orElse(false)) {
+                return;
+            }
+
             StringBuilder command = new StringBuilder();
-            String marker = "@command:";
 
             for (Text page : pages.get()) {
-                String message = page.toPlain().replaceAll("[^\\S ]+"," ");
+                String message = page.toPlain().replaceAll("[^\\S ]+", " ");
                 command.append(message);
             }
 
-            if (command.substring(0, marker.length()).equals(marker) && command.length() > marker.length()) {
-                Utils.notify(player, "Executing book command...");
-                event.setCancelled(true);
+            Utils.notify(player, "Executing book command...");
+            event.setCancelled(true);
 
-                Location<World> location = event.getInteractionPoint()
-                        .filter(pos -> player.getWorld().getBlockType(pos.toInt()) != BlockTypes.AIR)
-                        .map(pos -> new Location<>(player.getWorld(), pos.toInt()))
-                        .orElse(player.getLocation());
+            Location<World> location = event.getInteractionPoint()
+                    .filter(pos -> player.getWorld().getBlockType(pos.toInt()) != BlockTypes.AIR)
+                    .map(pos -> new Location<>(player.getWorld(), pos.toInt()))
+                    .orElse(player.getLocation());
 
-                CommandBookSource source = new CommandBookSource(player, location);
-                Sponge.getCommandManager().process(source, command.substring(marker.length()));
-            }
+            CommandBookSource source = new CommandBookSource(player, location);
+            Sponge.getCommandManager().process(source, command.toString());
         }
     }
 

@@ -14,7 +14,6 @@ import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.extent.ArchetypeVolume;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,7 +28,7 @@ public class Clipboard {
     private final ArchetypeVolume blocks;
     private final Map<EntityArchetype, Vector3d> entities;
 
-    private List<BlockSnapshot> history = new LinkedList<>();
+    private final History history = new History(5);
 
     private Clipboard(ArchetypeVolume volume, Map<EntityArchetype, Vector3d> entities, Direction direction, Transform transform) {
         this.blocks = volume;
@@ -46,13 +45,22 @@ public class Clipboard {
         transform.rotate(this.direction, direction);
         transform.setUp();
 
-        history = new LinkedList<>();
-        blocks.getBlockWorker(cause).iterate((v, x, y, z) -> transform.apply(world, v, x, y, z, position, history, uuid, cause));
+        List<BlockSnapshot> record = history.nextRecord();
+
+        Utils.notify(player, "Pasting...");
+        blocks.getBlockWorker(cause).iterate((v, x, y, z) -> transform.apply(world, v, x, y, z, position, record, uuid, cause));
+        entities.forEach((entity, offset) -> transform.apply(world, entity, offset, position, cause));
     }
 
-    public void undo() {
-        for (BlockSnapshot snapshot : history) {
-            snapshot.restore(true, BlockChangeFlag.NONE);
+    public void undo(Player player) {
+        List<BlockSnapshot> record = history.popRecord();
+        if (record != null) {
+            Utils.notify(player, "Undoing...");
+            for (BlockSnapshot snapshot : record) {
+                snapshot.restore(true, BlockChangeFlag.NONE);
+            }
+        } else {
+            Utils.error(player, "No more history to undo");
         }
     }
 

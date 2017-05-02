@@ -1,16 +1,23 @@
 package me.dags.toolkit.clipboard;
 
+import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import me.dags.toolkit.utils.Utils;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.tileentity.TileEntityArchetype;
 import org.spongepowered.api.block.trait.BlockTrait;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityArchetype;
+import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.util.Axis;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.BlockChangeFlag;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.extent.ArchetypeVolume;
 import org.spongepowered.api.world.extent.BlockVolume;
 
 import java.util.List;
@@ -138,11 +145,13 @@ public class Transform {
         return this;
     }
 
-    public void apply(World world, BlockVolume source, int x, int y, int z, Vector3i pos, List<BlockSnapshot> history, UUID uuid, Cause cause) {
+    public void apply(World world, ArchetypeVolume source, int x, int y, int z, Vector3i pos, List<BlockSnapshot> history, UUID uuid, Cause cause) {
         BlockState state = source.getBlock(x, y, z);
         if (state.getType() == BlockTypes.AIR) {
             return;
         }
+
+        Optional<TileEntityArchetype> tile = source.getTileEntityArchetype(x, y, z);
 
         if (angle != 0) {
             int rx = rotateY(x, z, rads, -1);
@@ -175,12 +184,41 @@ public class Transform {
         z += pos.getZ();
 
         history.add(world.createSnapshot(x, y, z));
+
+        world.setCreator(x, y, z, uuid);
         world.setBlock(x, y, z, state, BlockChangeFlag.NONE, cause);
-        world.setCreator(x, y ,z, uuid);
+
+        if (tile.isPresent()) {
+            tile.get().apply(new Location<>(world, x, y, z), cause);
+        }
+    }
+
+    // not sure if this works
+    public void apply(World world, EntityArchetype entity, Vector3d offset, Vector3i pos, Cause cause) {
+        // calc rotated offset
+        double rx = rotateY(offset.getX(), offset.getZ(), rads, -1);
+        double rz = rotateY(offset.getZ(), offset.getX(), rads, 1);
+
+        // calc translation from original offset to rotated offset
+        double dx = rx - offset.getX();
+        double dy = offset.getY();
+        double dz = rz - offset.getZ();
+
+        // translate position by same amount
+        double x = pos.getX() + dx;
+        double y = pos.getY() + dy;
+        double z = pos.getZ() + dz;
+
+        Location<World> location = new Location<>(world, x, y, z);
+        entity.apply(location, cause); // doesn't return the entity we just created so can't apply rotations etc to it :[
     }
 
     private static int rotateY(int a, int b, double rads, int sign) {
         return (int) Math.round(a * Math.cos(rads) + (sign * b) * Math.sin(rads));
+    }
+
+    private static double rotateY(double a, double b, double rads, int sign) {
+        return a * Math.cos(rads) + (sign * b) * Math.sin(rads);
     }
 
     private static BlockState rotateFacing(BlockState state, int angle) {

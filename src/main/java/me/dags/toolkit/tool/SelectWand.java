@@ -28,7 +28,7 @@ import java.util.Optional;
  */
 public class SelectWand {
 
-    private static final int defaultSize = 20000;
+    private static final int defaultSize = 15000;
     private static final int extendedSize = 50000;
 
     @Permission("toolkit.select")
@@ -41,7 +41,7 @@ public class SelectWand {
         } else {
             FMT.info("Removed selection wand").tell(player);
             Toolkit.getData(player).remove("option.wand.select.item");
-            Toolkit.getData(player).remove("option.wand.select.volume");
+            Toolkit.getData(player).remove("option.wand.select.clipboard");
             Toolkit.getData(player).remove("option.wand.select.selector");
             Toolkit.getData(player).remove("option.wand.select.transform");
         }
@@ -61,7 +61,7 @@ public class SelectWand {
     @Command(alias = "reset", parent = "wand select")
     public void reset(@Caller Player player) {
         FMT.info("Resetting selection wand").tell(player);
-        Toolkit.getData(player).remove("option.wand.select.volume");
+        Toolkit.getData(player).remove("option.wand.select.clipboard");
         Toolkit.getData(player).remove("option.wand.select.selector");
         Toolkit.getData(player).remove("option.wand.select.transform");
     }
@@ -158,15 +158,15 @@ public class SelectWand {
 
         if (inHand.isPresent()) {
             Optional<ItemType> wand = Toolkit.getData(player).get("option.wand.select.item");
+
             if (wand.isPresent() && wand.get() == inHand.get()) {
                 event.setCancelled(true);
 
                 Selector selector = Toolkit.getData(player).get("option.wand.select.selector", Selector::new);
+                Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.clipboard");
                 Vector3i target = Utils.targetPosition(player, selector.range);
 
-                Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.volume");
                 if (clipBoard.isPresent()) {
-                    Utils.notify(player, "Pasting...");
                     clipBoard.get().apply(player, target, Toolkit.getCause(player));
                 } else {
                     selector.pos(player, target);
@@ -183,15 +183,15 @@ public class SelectWand {
             if (wand.isPresent() && wand.get() == inHand.get()) {
                 event.setCancelled(true);
 
-                Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.volume");
+                Optional<Clipboard> clipBoard = Toolkit.getData(player).get("option.wand.select.clipboard");
                 if (clipBoard.isPresent()) {
                     if (player.get(Keys.IS_SNEAKING).orElse(false)) {
                         Utils.notify(player, "Clearing clipboard & selection points");
-                        Toolkit.getData(player).remove("option.wand.select.volume");
+                        Toolkit.getData(player).remove("option.wand.select.clipboard");
                         Toolkit.getData(player).remove("option.wand.select.selector");
                     } else {
                         Utils.notify(player, "Undoing paste....");
-                        clipBoard.get().undo();
+                        clipBoard.get().undo(player);
                     }
                 }
             }
@@ -211,7 +211,7 @@ public class SelectWand {
             } else if (pos2 == Vector3i.ZERO) {
                 pos2 = pos;
                 int size = size(pos1.min(pos2), pos1.max(pos2));
-                Utils.notify(player, "Set pos2 ", pos, ", volume: ", size);
+                Utils.notify(player, "Set pos2 ", pos, ", Size: ", size);
             } else if (player.get(Keys.IS_SNEAKING).orElse(false)) {
                 Vector3i min = pos1.min(pos2);
                 Vector3i max = pos1.max(pos2);
@@ -219,15 +219,15 @@ public class SelectWand {
                 int limit = player.hasPermission("toolkit.wand.select.limit.expanded") ? extendedSize : defaultSize;
                 if (size <= limit) {
                     Clipboard clipboard = Clipboard.of(player, min, max, pos);
-                    Toolkit.getData(player).set("option.wand.select.volume", clipboard);
-                    Utils.notify(player, "Copied selection, size: ", size);
+                    Toolkit.getData(player).set("option.wand.select.clipboard", clipboard);
+                    Utils.notify(player, "Copied selection, Size: ", size);
                 } else {
                     Utils.error(player, "Selection size is too large!: ", size, "/", limit);
                 }
             } else {
                 pos1 = Vector3i.ZERO;
                 pos2 = Vector3i.ZERO;
-                Toolkit.getData(player).remove("option.wand.select.volume");
+                Toolkit.getData(player).remove("option.wand.select.clipboard");
                 Utils.notify(player, "Cleared selection points");
             }
         }

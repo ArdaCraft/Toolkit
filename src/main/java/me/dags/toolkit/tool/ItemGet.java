@@ -5,12 +5,10 @@ import me.dags.commandbus.annotation.Command;
 import me.dags.commandbus.annotation.One;
 import me.dags.commandbus.annotation.Permission;
 import me.dags.toolkit.utils.Utils;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.type.SkullTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 /**
@@ -32,12 +30,14 @@ public class ItemGet {
     @Permission("toolkit.get.head")
     @Command(alias = "head", parent = "get")
     public void getHead(@Caller Player player, @One("player") User user) {
-        ItemStack stack = ItemStack.builder()
-                .itemType(ItemTypes.SKULL)
-                .add(Keys.SKULL_TYPE, SkullTypes.PLAYER)
-                .add(Keys.SKIN_UNIQUE_ID, user.getUniqueId())
-                .build();
+        String command = String.format("give %s minecraft:skull 1 3 {SkullOwner:%s}", player.getName(), user.getName());
+        Sponge.getCommandManager().process(player, command);
+    }
 
-        player.getInventory().offer(stack);
+    @Permission("toolkit.get.head")
+    @Command(alias = "head", parent = "get")
+    public void getHead(@Caller Player player, @One("player") String user) {
+        String command = String.format("give %s minecraft:skull 1 3 {SkullOwner:%s}", player.getName(), user);
+        Sponge.getCommandManager().process(player, command);
     }
 }

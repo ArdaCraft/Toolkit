@@ -10,11 +10,11 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scheduler.SpongeExecutorService;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -30,27 +30,17 @@ public class Toolkit {
 
     private static final Logger logger = LoggerFactory.getLogger("Toolkit");
     private static final Map<UUID, UserData> userData = new HashMap<>();
+    private static Cause globalCause;
     private static PluginContainer container;
-
-    public static Cause getCause(Player player) {
-        return Cause.source(container)
-                .owner(player.getUniqueId())
-                .notifier(player.getUniqueId())
-                .named(NamedCause.PLAYER_PLACE, player)
-                .build();
-    }
-
-    public static UserData getData(Player player) {
-        return userData.computeIfAbsent(player.getUniqueId(), k -> new UserData());
-    }
-
-    private static UserData removeData(Player player) {
-        return userData.remove(player.getUniqueId());
-    }
+    private static SpongeExecutorService syncExecutor;
+    private static SpongeExecutorService asyncExecutor;
 
     @Inject
     public Toolkit(PluginContainer container) {
-        Toolkit.container = container;;
+        Toolkit.container = container;
+        Toolkit.globalCause = Cause.source(container).build();
+        Toolkit.syncExecutor = Sponge.getScheduler().createSyncExecutor(this);
+        Toolkit.asyncExecutor = Sponge.getScheduler().createAsyncExecutor(this);
     }
 
     @Listener
@@ -59,7 +49,7 @@ public class Toolkit {
         modules.put("get", new ItemGet());
         modules.put("wand.biome", new BiomeWand());
         modules.put("wand.info", new InfoWand());
-        modules.put("wand.select", new SelectWand());
+        modules.put("wand.copy", new CopyWand());
         modules.put("nophysics", new NoPhysics());
         modules.put("weatherlock", new WeatherLock());
         modules.put("commandbook", new CommandBook());
@@ -83,5 +73,32 @@ public class Toolkit {
     @Listener(order = Order.POST)
     public void quit(ClientConnectionEvent.Disconnect event) {
         Toolkit.removeData(event.getTargetEntity());
+    }
+
+    public static void submitAsyncTask(Runnable runnable) {
+        asyncExecutor.submit(runnable);
+    }
+
+    public static void submitSyncTask(Runnable runnable) {
+        syncExecutor.submit(runnable);
+    }
+
+    public static Cause getGlobalCause() {
+        return globalCause;
+    }
+
+    public static Cause getPlayerCause(Player player) {
+        return Cause.source(container)
+                .notifier(player)
+                .owner(player)
+                .build();
+    }
+
+    public static UserData getData(Player player) {
+        return userData.computeIfAbsent(player.getUniqueId(), k -> new UserData());
+    }
+
+    private static UserData removeData(Player player) {
+        return userData.remove(player.getUniqueId());
     }
 }

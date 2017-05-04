@@ -1,21 +1,28 @@
 package me.dags.toolkit.clipboard;
 
-import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.FutureCallback;
+import me.dags.commandbus.format.FMT;
 import me.dags.toolkit.Toolkit;
+import me.dags.toolkit.clipboard.block.Facing;
 import me.dags.toolkit.utils.Utils;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.entity.EntityArchetype;
+import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.SpongeEventFactory;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.world.extent.ArchetypeVolume;
+import org.spongepowered.api.world.extent.BlockVolume;
+import org.spongepowered.api.world.storage.WorldProperties;
 
+import javax.annotation.Nullable;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -23,33 +30,41 @@ import java.util.UUID;
  */
 public class Clipboard {
 
-    private final Transform transform;
-    private final Direction direction;
-    private final ArchetypeVolume blocks;
-    private final Map<EntityArchetype, Vector3d> entities;
-
+    private final Facing facing;
+    private final Vector3i origin;
+    private final BlockVolume source;
     private final History history = new History(5);
 
-    private Clipboard(ArchetypeVolume volume, Map<EntityArchetype, Vector3d> entities, Direction direction, Transform transform) {
-        this.blocks = volume;
-        this.entities = entities;
-        this.direction = direction;
-        this.transform = transform;
+    private Clipboard(BlockVolume source, Vector3i origin, Facing facing) {
+        this.source = source.getImmutableBlockCopy();
+        this.origin = origin;
+        this.facing = facing;
     }
 
-    public void apply(Player player, Vector3i position, Cause cause) {
-        World world = player.getWorld();
-        UUID uuid = player.getUniqueId();
-        Direction direction = Utils.direction(Utils.directionVector(player.getRotation()));
+    public void paste(Player player, Vector3i position, Cause cause) {
+        final World world = player.getWorld();
+        final UUID uuid = player.getUniqueId();
 
-        transform.rotate(this.direction, direction);
-        transform.setUp();
+        ClipboardOptions options = Toolkit.getData(player).get("options", ClipboardOptions::new);
+        options.setClipboardFacing(facing);
+        options.setPlayerFacing(player);
 
-        List<BlockSnapshot> record = history.nextRecord();
+        FutureCallback<BlockVolume> callback = new FutureCallback<BlockVolume>() {
+            @Override
+            public void onSuccess(@Nullable BlockVolume result) {
+                paste(world, result, position.add(origin), cause, uuid);
+            }
 
-        Utils.notify(player, "Paste");
-        blocks.getBlockWorker(cause).iterate((v, x, y, z) -> transform.apply(world, v, x, y, z, position, record, uuid, cause));
-        // entities.forEach((entity, offset) -> transform.apply(world, entity, offset, position, cause));
+            @Override
+            public void onFailure(Throwable t) {
+                FMT.warn("Unable to transform the clipboard! See the console").tell(player);
+                t.printStackTrace();
+            }
+        };
+
+        Transform transform = options.createTransform();
+        Transform.Task task = transform.createTask(source, cause, callback);
+        Toolkit.submitAsyncTask(task);
     }
 
     public void undo(Player player) {
@@ -64,19 +79,53 @@ public class Clipboard {
         }
     }
 
-    public static Clipboard of(Player player, Vector3i min, Vector3i max, Vector3i origin) {
-        Vector3d entityOrigin = origin.toDouble();
+    private void paste(World world, BlockVolume source, Vector3i position, Cause cause, UUID uuid) {
+        final List<Transaction<BlockSnapshot>> transactions = new LinkedList<>();
+        final WorldProperties properties = world.getProperties();
 
-        ImmutableMap.Builder<EntityArchetype, Vector3d> builder = ImmutableMap.builder();
-        player.getWorld().getExtentView(min, max).getEntities().forEach(entity -> {
-            Vector3d offset = entity.getLocation().getPosition().sub(entityOrigin);
-            builder.put(entity.createArchetype(), offset);
+        source.getBlockWorker(cause).iterate((volume, x, y, z) -> {
+            BlockState state = volume.getBlock(x, y, z);
+            if (state.getType() == BlockTypes.AIR) {
+                return;
+            }
+
+            x += position.getX();
+            y += position.getY();
+            z += position.getZ();
+
+            if (!world.containsBlock(x, y, z)) {
+                return;
+            }
+
+            BlockSnapshot from = world.createSnapshot(x, y, z);
+
+            BlockSnapshot to = BlockSnapshot.builder()
+                    .position(new Vector3i(x, y, z))
+                    .world(properties)
+                    .blockState(state)
+                    .notifier(uuid)
+                    .creator(uuid)
+                    .build();
+
+            transactions.add(new Transaction<>(from, to));
         });
 
-        Direction direction = Utils.direction(Utils.directionVector(player.getRotation()));
-        ArchetypeVolume blocks = player.getWorld().createArchetypeVolume(min, max, origin);
-        Transform transform = Toolkit.getData(player).get("option.wand.select.transform", Transform::new);
+        ChangeBlockEvent.Place test = SpongeEventFactory.createChangeBlockEventPlace(cause, world, transactions);
+        Sponge.getEventManager().post(test);
 
-        return new Clipboard(blocks, builder.build(), direction, transform);
+        if (!test.isCancelled()) {
+            List<BlockSnapshot> records = history.nextRecord();
+
+            test.getTransactions().stream()
+                    .filter(Transaction::isValid)
+                    .peek(transaction -> records.add(transaction.getOriginal()))
+                    .forEach(transaction -> transaction.getFinal().restore(true, BlockChangeFlag.NONE));
+        }
+    }
+
+    public static Clipboard of(Player player, Vector3i min, Vector3i max, Vector3i origin) {
+        BlockVolume source = player.getWorld().getBlockView(min, max).getRelativeBlockView();
+        Facing facing = Facing.horizontalFacing(player);
+        return new Clipboard(source, origin, facing);
     }
 }

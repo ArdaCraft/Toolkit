@@ -6,8 +6,9 @@ import me.dags.commandbus.annotation.One;
 import me.dags.commandbus.annotation.Permission;
 import me.dags.toolkit.utils.Utils;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.type.SkullTypes;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.item.ItemTypes;
@@ -32,12 +33,19 @@ public class ItemGet {
     @Permission("toolkit.get.head")
     @Command(alias = "head", parent = "get")
     public void getHead(@Caller Player player, @One("player") User user) {
-        ItemStack stack = ItemStack.builder()
-                .itemType(ItemTypes.SKULL)
-                .add(Keys.SKULL_TYPE, SkullTypes.PLAYER)
-                .add(Keys.SKIN_UNIQUE_ID, user.getUniqueId())
-                .build();
+        getHead(player, user.getName());
+    }
 
-        player.getInventory().offer(stack);
+    @Permission("toolkit.get.head")
+    @Command(alias = "head", parent = "get")
+    public void getHead(@Caller Player player, @One("name") String name) {
+        DataContainer container = new MemoryDataContainer()
+                .set(DataQuery.of("ItemType"), ItemTypes.SKULL)
+                .set(DataQuery.of("Count"), 1)
+                .set(DataQuery.of("UnsafeDamage"), 3)
+                .set(DataQuery.of("UnsafeData", "SkullOwner"), name);
+
+        Utils.notify(player, "Got ", name, "'s head!");
+        player.getInventory().offer(ItemStack.builder().fromContainer(container).build());
     }
 }

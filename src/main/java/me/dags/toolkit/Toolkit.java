@@ -26,7 +26,7 @@ public class Toolkit {
 
     public static final String ID = "toolkit";
     public static final String NAME = "Toolkit";
-    public static final String VERSION = "1.2.2-SNAPSHOT";
+    public static final String VERSION = "1.2.3-SNAPSHOT";
 
     private static final Logger logger = LoggerFactory.getLogger("Toolkit");
     private static final Map<UUID, UserData> userData = new HashMap<>();
@@ -50,7 +50,7 @@ public class Toolkit {
 
     @Inject
     public Toolkit(PluginContainer container) {
-        Toolkit.container = container;;
+        Toolkit.container = container;
     }
 
     @Listener
@@ -59,7 +59,6 @@ public class Toolkit {
         modules.put("get", new ItemGet());
         modules.put("wand.biome", new BiomeWand());
         modules.put("wand.info", new InfoWand());
-        modules.put("wand.select", new SelectWand());
         modules.put("nophysics", new NoPhysics());
         modules.put("weatherlock", new WeatherLock());
         modules.put("commandbook", new CommandBook());

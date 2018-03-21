@@ -25,7 +25,7 @@ public class NoPhysics {
 
     @Listener
     public void onPlayerBlockUpdate(NotifyNeighborBlockEvent event, @Named(NamedCause.NOTIFIER) Player player) {
-        if (Toolkit.getData(player).getOrElse("option.nophysics", false)) {
+        if (Toolkit.getData(player).getOrElse("option.nophysics", true)) {
             event.setCancelled(true);
         }
     }

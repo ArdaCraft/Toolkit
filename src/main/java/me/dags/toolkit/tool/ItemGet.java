@@ -4,10 +4,13 @@ import me.dags.commandbus.annotation.Command;
 import me.dags.commandbus.annotation.Permission;
 import me.dags.commandbus.annotation.Src;
 import me.dags.toolkit.utils.Utils;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 /**
@@ -29,14 +32,19 @@ public class ItemGet {
     @Permission("toolkit.get.head")
     @Command("get head <player>")
     public void getHead(@Src Player player, User user) {
-        String command = String.format("give %s minecraft:skull 1 3 {SkullOwner:%s}", player.getName(), user.getName());
-        Sponge.getCommandManager().process(player, command);
+        getHead(player, user.getName());
     }
 
     @Permission("toolkit.get.head")
     @Command("get head <name>")
-    public void getHead(@Src Player player, String user) {
-        String command = String.format("give %s minecraft:skull 1 3 {SkullOwner:%s}", player.getName(), user);
-        Sponge.getCommandManager().process(player, command);
+    public void getHead(@Src Player player, String name) {
+        DataContainer container = new MemoryDataContainer()
+                .set(DataQuery.of("ItemType"), ItemTypes.SKULL)
+                .set(DataQuery.of("Count"), 1)
+                .set(DataQuery.of("UnsafeDamage"), 3)
+                .set(DataQuery.of("UnsafeData", "SkullOwner"), name);
+
+        Utils.notify(player, "Got ", name, "'s head!");
+        player.getInventory().offer(ItemStack.builder().fromContainer(container).build());
     }
 }

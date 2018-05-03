@@ -1,9 +1,12 @@
 package me.dags.toolkit.tool;
 
-import me.dags.commandbus.annotation.Caller;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import me.dags.commandbus.annotation.Command;
 import me.dags.commandbus.annotation.Join;
 import me.dags.commandbus.annotation.Permission;
+import me.dags.commandbus.annotation.Src;
 import me.dags.toolkit.Toolkit;
 import me.dags.toolkit.utils.UserData;
 import me.dags.toolkit.utils.Utils;
@@ -23,18 +26,14 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.biome.BiomeType;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 /**
  * @author dags <dags@dags.me>
  */
 public class BiomeWand {
 
     @Permission("toolkit.wand.biome")
-    @Command(alias = "biome", parent = "wand")
-    public void biomeWandItem(@Caller Player player) {
+    @Command("wand biome")
+    public void biomeWandItem(@Src Player player) {
         Optional<ItemStack> inHand = player.getItemInHand(HandTypes.MAIN_HAND);
         if (inHand.isPresent()) {
             ItemType type = inHand.get().getItem();
@@ -47,8 +46,8 @@ public class BiomeWand {
     }
 
     @Permission("toolkit.biomes")
-    @Command(alias = "biomes")
-    public void biomeList(@Caller CommandSource source) {
+    @Command("biomes")
+    public void biomeList(@Src CommandSource source) {
         List<Text> lines = Sponge.getRegistry().getAllOf(BiomeType.class).stream()
                 .map(BiomeType::getName)
                 .sorted()
@@ -64,15 +63,15 @@ public class BiomeWand {
     }
 
     @Permission("toolkit.wand.biome")
-    @Command(alias = "biome")
-    public void biomeType(@Caller Player player) {
+    @Command("biome")
+    public void biomeType(@Src Player player) {
         BlockSnapshot snapshot = Utils.targetBlock(player, 50);
         snapshot.getLocation().ifPresent(l -> biomeType(player, l.getBiome().getName()));
     }
 
     @Permission("toolkit.wand.biome")
-    @Command(alias = "biome")
-    public void biomeType(@Caller Player player, @Join("biome") String biome) {
+    @Command("biome")
+    public void biomeType(@Src Player player, @Join("biome") String biome) {
         Sponge.getRegistry().getType(BiomeType.class, biome).ifPresent(biomeType -> {
             Toolkit.getData(player).set("option.wand.biome.type", biomeType);
             Utils.notify(player, "Set biome type to: " + biomeType.getName());

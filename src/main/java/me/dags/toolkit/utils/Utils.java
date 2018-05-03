@@ -1,6 +1,6 @@
 package me.dags.toolkit.utils;
 
-import com.flowpowered.math.vector.Vector3i;
+import java.util.Optional;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
@@ -9,8 +9,6 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.blockray.BlockRay;
 import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.World;
-
-import java.util.Optional;
 
 /**
  * @author dags <dags@dags.me>
@@ -31,15 +29,6 @@ public class Utils {
                 .distanceLimit(limit)
                 .end();
 
-        return hit.isPresent() ? hit.get().getLocation().createSnapshot() : org.spongepowered.api.block.BlockSnapshot.NONE;
-    }
-
-    public static Vector3i targetPosition(Player player, int limit) {
-        Optional<BlockRayHit<World>> hit = BlockRay.from(player)
-                .stopFilter(BlockRay.continueAfterFilter(BlockRay.onlyAirFilter(), 1))
-                .distanceLimit(limit)
-                .end();
-
-        return hit.isPresent() ? hit.get().getBlockPosition() : Vector3i.ZERO;
+        return hit.map(blockHit -> blockHit.getLocation().createSnapshot()).orElse(BlockSnapshot.NONE);
     }
 }

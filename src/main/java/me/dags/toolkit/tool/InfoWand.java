@@ -1,10 +1,11 @@
 package me.dags.toolkit.tool;
 
-import me.dags.commandbus.annotation.Caller;
+import java.util.Optional;
 import me.dags.commandbus.annotation.Command;
 import me.dags.commandbus.annotation.Permission;
-import me.dags.commandbus.format.FMT;
-import me.dags.commandbus.format.Formatter;
+import me.dags.commandbus.annotation.Src;
+import me.dags.commandbus.fmt.Fmt;
+import me.dags.commandbus.fmt.Formatter;
 import me.dags.toolkit.Toolkit;
 import me.dags.toolkit.utils.UserData;
 import me.dags.toolkit.utils.Utils;
@@ -19,16 +20,14 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.user.UserStorageService;
 
-import java.util.Optional;
-
 /**
  * @author dags <dags@dags.me>
  */
 public class InfoWand {
 
     @Permission("toolkit.info")
-    @Command(alias = "info", parent = "wand")
-    public void getBlock(@Caller Player player) {
+    @Command("wand info")
+    public void getBlock(@Src Player player) {
         Optional<ItemStack> inHand = player.getItemInHand(HandTypes.MAIN_HAND);
         if (inHand.isPresent()) {
             ItemType type = inHand.get().getItem();
@@ -47,7 +46,7 @@ public class InfoWand {
         if (data.presentAndEquals("option.wand.info.item", type)) {
             BlockSnapshot target = Utils.targetBlock(player, 10);
 
-            Formatter info = FMT.info("Position: ").stress(target.getPosition());
+            Formatter info = Fmt.info("Position: ").stress(target.getPosition());
 
             UserStorageService users = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
             target.getCreator()

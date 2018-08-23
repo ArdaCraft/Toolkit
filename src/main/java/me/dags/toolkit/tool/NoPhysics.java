@@ -20,7 +20,7 @@ public class NoPhysics {
     @Permission("toolkit.nophysics")
     @Command("np")
     public void togglePhysics(@Src Player player) {
-        boolean value = Toolkit.getData(player).transform("option.nophysics", b -> !b, () -> false);
+        boolean value = Toolkit.getData(player).transform("option.nophysics", b -> !b, () -> true);
         Utils.notify(player, "Set no-physics to: ", value);
     }
 

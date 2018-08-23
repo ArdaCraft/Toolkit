@@ -32,7 +32,7 @@ public class NoPhysics {
             return;
         }
 
-        if (Toolkit.getData(notifier.get()).getOrElse("option.nophysics", false)) {
+        if (Toolkit.getData(notifier.get()).getOrElse("option.nophysics", true)) {
             event.setCancelled(true);
         }
     }

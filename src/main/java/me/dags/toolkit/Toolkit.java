@@ -1,14 +1,7 @@
 package me.dags.toolkit;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import me.dags.commandbus.CommandBus;
-import me.dags.toolkit.tool.BiomeWand;
-import me.dags.toolkit.tool.InfoWand;
-import me.dags.toolkit.tool.ItemGet;
-import me.dags.toolkit.tool.NoPhysics;
-import me.dags.toolkit.tool.WeatherLock;
+import me.dags.toolkit.tool.*;
 import me.dags.toolkit.utils.UserData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
@@ -17,6 +10,10 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Plugin(name = Toolkit.NAME, id = Toolkit.ID, version = Toolkit.VERSION)
 public class Toolkit {
@@ -55,8 +52,12 @@ public class Toolkit {
         Toolkit.removeData(event.getTargetEntity());
     }
 
+    public static UserData getData(UUID id) {
+        return userData.computeIfAbsent(id, k -> new UserData());
+    }
+
     public static UserData getData(Player player) {
-        return userData.computeIfAbsent(player.getUniqueId(), k -> new UserData());
+        return getData(player.getUniqueId());
     }
 
     public static Toolkit getInstance() {

@@ -39,10 +39,10 @@ public class NoPhysics {
     public void worldPhysics(@Src Player player) {
         if (override.isActive()) {
             override.disable();
-            Fmt.stress("Worldwide physics disabled").tell(Sponge.getServer().getBroadcastChannel());
+            Fmt.stress("World physics disabled").tell(Sponge.getServer().getBroadcastChannel());
         } else {
             override.enable(player.getUniqueId());
-            Fmt.warn("Worldwide physics enabled").tell(Sponge.getServer().getBroadcastChannel());
+            Fmt.warn("World physics enabled").tell(Sponge.getServer().getBroadcastChannel());
         }
     }
 

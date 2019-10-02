@@ -26,7 +26,7 @@ public class NoPhysics {
     private final Override override = new Override();
 
     @Command("np")
-    @Permission("toolkit.nophysics.user")
+    @Permission("toolkit.nophysics")
     @Description("Toggle physics on your block interactions")
     public void userPhysics(@Src Player player) {
         boolean value = Toolkit.getData(player).transform("option.nophysics", b -> !b, () -> true);
@@ -34,7 +34,7 @@ public class NoPhysics {
     }
 
     @Command("np global")
-    @Permission("toolkit.nophysics.global")
+    @Permission("toolkit.worldphysics")
     @Description("Toggle physics on non-player interactions")
     public void worldPhysics(@Src Player player) {
         if (override.isActive()) {

@@ -1,0 +1,12 @@
+dist: trusty
+language: java
+os: linux
+jdk:
+  - openjdk8
+  - oraclejdk8
+install: true
+script:
+  - mvn install
+  - mvn test -B
+notifications:
+  email: false
